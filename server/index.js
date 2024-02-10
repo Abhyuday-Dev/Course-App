@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors= require('cors');
 
+require('dotenv').config();
+
 const adminRouter = require("./routes/admin");
 const userRouter = require("./routes/user");
 
@@ -13,7 +15,7 @@ app.use(express.json());
 app.use("/admin", adminRouter);
 app.use("/user", userRouter);
 
-mongoose.connect("mongodb+srv://abhyuday7176:abhyuday@courses.u22wbxv.mongodb.net/?retryWrites=true&w=majority")
+mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('MongoDB connection successful');
     })

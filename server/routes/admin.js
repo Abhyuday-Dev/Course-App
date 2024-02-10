@@ -30,6 +30,7 @@ router.post("/signup",async(req,res)=>{
             newAdmin.save();
 
             const token=jwt.sign({username,role:'admin'},SECRET,{expiresIn:'2h'});
+            console.log(token);
             res.json({message:"Admin Created Successfully"});
         }
     })
@@ -40,6 +41,7 @@ router.post("/login",async(req,res)=>{
     const admin=await Admin.findOne({username,password});
     if(admin){
         const token=jwt.sign({username,role:'admin'},SECRET,{expiresIn:'2h'});
+        console.log(token);
         res.json({message:"Logged In Successfully"});
     }
     else{
