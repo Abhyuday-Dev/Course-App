@@ -4,6 +4,7 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -107,7 +108,11 @@ const SignUp = () => {
           <hr />
           <Typography fontSize="14px" textAlign="center" margin="15px">
             Already have an account?{" "}
-            <span style={{ color: "#5624d0", fontWeight: "bold" }}>Log In</span>
+            <Link to="/login" style={{ textDecoration: "none" }}>
+              <span style={{ color: "#5624d0", fontWeight: "bold" }}>
+                Log In
+              </span>
+            </Link>
           </Typography>
         </div>
       </Card>
