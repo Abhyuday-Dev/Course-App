@@ -10,28 +10,29 @@ const router=express.Router();
 router.get("/me",authenticateJwt,async(req,res)=>{
     const admin=await Admin.findOne({username: req.user.username});
     if(!admin) {
-        res.status(403).json({message:"Admin Dosen;t exist"});
+        res.status(403).json({message:"Admin Dosen't exist"});
         return;
     }
     res.json({
-        username: admin.username
+        username: admin.username,
+        name:admin.name
     })
 });
 
 router.post("/signup",async(req,res)=>{
-    const {username,password}=req.body;
+    const {username,password,name}=req.body;
     Admin.findOne({username}).then((admin)=>{
         if(admin){
             res.status(403).json({message:"Admin Already exist"});
         }
         else{
-            const obj={username:username,password:password};
+            const obj={name:name,username:username,password:password};
             const newAdmin=new Admin(obj);
             newAdmin.save();
 
             const token=jwt.sign({username,role:'admin'},SECRET,{expiresIn:'2h'});
-            console.log(token);
-            res.json({message:"Admin Created Successfully"});
+            //console.log(token);
+            res.json({message:"Admin Created Successfully",token:token});
         }
     })
 });
@@ -42,7 +43,7 @@ router.post("/login",async(req,res)=>{
     if(admin){
         const token=jwt.sign({username,role:'admin'},SECRET,{expiresIn:'2h'});
         console.log(token);
-        res.json({message:"Logged In Successfully"});
+        res.json({message:"Logged In Successfully",token:token});
     }
     else{
         res.status(403).json({message:"Invalid username or password"});

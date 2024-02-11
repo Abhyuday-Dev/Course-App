@@ -13,6 +13,7 @@ const UserSchema=new mongoose.Schema({
 //Admin Schema
 
 const AdminSchema=new mongoose.Schema({
+    name:{type:String},
     username: {type:String},
     password: String
 });
