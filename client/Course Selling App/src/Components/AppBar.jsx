@@ -43,6 +43,39 @@ const AppBar = () => {
           </Typography>
         </div>
         <div style={{ display: "flex", justifyContent: "space-around" }}>
+        <Button
+            style={{
+              marginRight: "10px",
+              backgroundColor: "white",
+              color: "black",
+              fontWeight: "bold",
+            }}
+            size="medium"
+            variant="contained"
+            onClick={() => {
+              window.location = "/addCourse";
+            }}
+          >
+            Add Course
+          </Button>
+          <Button
+            style={{
+              marginRight: "10px",
+              backgroundColor: "white",
+              color: "black",
+              fontWeight: "bold",
+            }}
+            size="medium"
+            variant="contained"
+            onClick={() => {
+              window.location = "/courses";
+            }}
+          >
+            Courses
+          </Button>
+          
+          
+          
           <Typography
             color="white"
             backgroundColor="black"
