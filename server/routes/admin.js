@@ -50,11 +50,12 @@ router.post("/login",async(req,res)=>{
     }
 });
 
-router.post("/courses",authenticateJwt,async(req,res)=>{
-    const course=new Course(req.body);
-    await Course.save();
-    res.json({message:"Course Created Successfully",courseId:course.id});
-});
+router.post("/courses", authenticateJwt, async (req, res) => {
+    const course = new Course(req.body);
+    await course.save();
+    res.json({ message: "Course Created Successfully", courseId: course.id });
+  });
+  
 
 router.put("/courses/:courseId",authenticateJwt,async(req,res)=>{
     const course=await Course.findByIdAndUpdate(req.params.courseId,req.body,{new:true});
