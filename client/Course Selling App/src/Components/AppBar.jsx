@@ -1,32 +1,24 @@
 import { Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { useSetRecoilState, useRecoilValue } from "recoil";
+import { userState } from "../store/atoms/user";
+import { userEmailState } from "../store/selectors/userEmail";
+import { userNameState } from "../store/selectors/userName";
+import { isUserLoading } from "../store/selectors/isUserLoading";
+
 
 const AppBar = () => {
-  const [userName, setUserName] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+ const userLoading=useRecoilValue(isUserLoading);
+ const userEmail=useRecoilValue(userEmailState);
+ const userName=useRecoilValue(userNameState);
+ const setUser=useSetRecoilState(userState);
 
-  useEffect(() => {
-    fetch("http://localhost:3000/admin/me", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        if (data.name) {
-            console.log(data.name)
-          setUserName(data.name);
-          setIsLoading(false);
-        }
-      });
-  }, []);
-  if (isLoading) {
-    <div></div>;
-  }
-  if (userName) {
+ if(userLoading) {
+  return <></>
+ }
+
+  if (userEmail) {
+    console.log(userName);
     return (
       <div
         style={{
@@ -99,8 +91,11 @@ const AppBar = () => {
             size="medium"
             variant="contained"
             onClick={() => {
-              window.location = "/";
               localStorage.setItem("token", null);
+              setUser({
+                isLoading: false,
+                userEmail: null
+              })
             }}
           >
             Logout

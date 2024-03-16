@@ -52,9 +52,16 @@ const Course = () => {
   }
 
   return (
-    <div>
-      {courseId}
-     
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-around",
+        border: "1px solid black",
+        margin: "10rem 4rem 0rem 4rem",
+        padding: "1rem",
+      }}
+    >
       <CourseCard courseId={courseId} />
       <UpdateCard courseId={courseId} />
     </div>
@@ -62,16 +69,17 @@ const Course = () => {
 };
 
 function UpdateCard(props) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageLink, setImageLink] = useState("");
+  const [title,setTitle]=useState("");
+  const [description,setDescription]=useState("");
+  const [imageLink,setImageLink]=useState("");
+  const [price,setPrice]=useState("");
+  const [isPublished,setispublished]=useState("");
 
   // props.setCourse()
   const [courses, setCourses] = useRecoilState(coursesState);
   return (
     <div
       style={{
-        backgroundColor: "#eeeeee",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -82,11 +90,7 @@ function UpdateCard(props) {
       <Card variant="outlined" style={{ width: "500px", padding: "1rem" }}>
         <div
           className="form"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            padding: "0.8rem",
-          }}
+         
         >
           <TextField
             fullWidth={true}
@@ -122,8 +126,6 @@ function UpdateCard(props) {
             size={"large"}
             variant="contained"
             onClick={() => {
-            
-
               fetch("http://localhost:3000/admin/courses/" + props.courseId, {
                 method: "PUT",
                 body: JSON.stringify({
@@ -176,7 +178,8 @@ function CourseCard(props) {
 
   let course = null;
   for (let i = 0; i < courses.length; i++) {
-    if (courses[i].id == props.courseId) {
+    if (courses[i]._id == props.courseId) {
+      console.log("hrlll");
       course = courses[i];
     }
   }
