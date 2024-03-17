@@ -1,5 +1,5 @@
 import { Button, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 import { userState } from "../store/atoms/user";
 import { userEmailState } from "../store/selectors/userEmail";
@@ -96,6 +96,7 @@ const AppBar = () => {
                 isLoading: false,
                 userEmail: null
               })
+              window.location='/';
             }}
           >
             Logout

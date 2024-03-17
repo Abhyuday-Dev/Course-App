@@ -1,215 +1,174 @@
-import { Card, Typography } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import { Card, Grid } from "@mui/material";
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import {
-  atom,
-  useRecoilState,
-  useRecoilValue,
-  useSetRecoilState,
-} from "recoil";
+import { Typography, TextField, Button } from "@mui/material";
+import axios from "axios";
+import {Loading} from "./Loading";
+import { BASE_URL } from "../config.js";
+import { courseState } from "../store/atoms/course.js";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import { courseTitle, coursePrice, isCourseLoading, courseImage } from "../store/selectors/course.js";
 
-const Course = () => {
-  let { courseId } = useParams();
+function Course() {
+    let { courseId } = useParams();
+    const setCourse = useSetRecoilState(courseState);
+    const courseLoading = useRecoilValue(isCourseLoading);
 
-  const setCourses = useSetRecoilState(coursesState);
-  const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        axios.get(`${BASE_URL}/admin/courses/${courseId}`, {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            }
+        }).then(res => {
+            setCourse({isLoading: false, course: res.data.course});
+        })
+        .catch(e => {
+            setCourse({isLoading: false, course: null});
+        });
+    }, []);
 
-  useEffect(() => {
-    fetch("http://localhost:3000/admin/courses", {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        if (data && data.courses) {
-          setCourses(data.courses);
-          setLoading(false); // Set loading to false when courses are available
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching courses:", error);
-        setLoading(false);
-      });
-  }, []);
+    if (courseLoading) {
+        return <Loading />
+    }
 
-  // let course = null;
-  // if (!loading) {
-  //   for (let i = 0; i < courses.length; i++) {
-  //     if (courses[i].id == courseId) {
-  //       course = courses[i];
-  //       console.log("Course", course);
-  //     }
-  //   }
-  // }
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-around",
-        border: "1px solid black",
-        margin: "10rem 4rem 0rem 4rem",
-        padding: "1rem",
-      }}
-    >
-      <CourseCard courseId={courseId} />
-      <UpdateCard courseId={courseId} />
+    return <div>
+        <GrayTopper />
+        <Grid container>
+            <Grid item lg={8} md={12} sm={12}>
+                <UpdateCard />
+            </Grid>
+            <Grid item lg={4} md={12} sm={12}>
+                <CourseCard />
+            </Grid>
+        </Grid>
     </div>
-  );
-};
+}
 
-function UpdateCard(props) {
-  const [title,setTitle]=useState("");
-  const [description,setDescription]=useState("");
-  const [imageLink,setImageLink]=useState("");
-  const [price,setPrice]=useState("");
-  const [isPublished,setispublished]=useState("");
+function GrayTopper() {
+    const title = useRecoilValue(courseTitle);
+    return <div style={{height: 250, background: "#212121", top: 0, width: "100vw", zIndex: 0, marginBottom: -250}}>
+        <div style={{ height: 250, display: "flex", justifyContent: "center", flexDirection: "column"}}>
+            <div>
+                <Typography style={{color: "white", fontWeight: 600}} variant="h3" textAlign={"center"}>
+                    {title}
+                </Typography>
+            </div>
+        </div>
+    </div>
+}
 
-  // props.setCourse()
-  const [courses, setCourses] = useRecoilState(coursesState);
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h5">Update the course</Typography>
-      <Card variant="outlined" style={{ width: "500px", padding: "1rem" }}>
-        <div
-          className="form"
-         
-        >
-          <TextField
-            fullWidth={true}
-            onChange={(e) => {
-              setTitle(e.target.value);
-            }}
-            id="outlined-basic"
-            label="Title"
-            variant="outlined"
-            style={{ marginBottom: "10px" }}
-          />
-          <TextField
-            fullWidth={true}
-            onChange={(e) => {
-              setDescription(e.target.value);
-            }}
-            id="outlined-basic"
-            label="Description"
-            variant="outlined"
-            style={{ marginBottom: "10px" }}
-          />
-          <TextField
-            fullWidth={true}
-            onChange={(e) => {
-              setImageLink(e.target.value);
-            }}
-            id="outlined-basic"
-            label="Course Cover Image"
-            variant="outlined"
-            style={{ marginBottom: "10px" }}
-          />
-          <Button
-            size={"large"}
-            variant="contained"
-            onClick={() => {
-              fetch("http://localhost:3000/admin/courses/" + props.courseId, {
-                method: "PUT",
-                body: JSON.stringify({
-                  title: title,
-                  description: description,
-                  price: "455",
-                  imgLink: imageLink,
-                  published: "true",
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + localStorage.getItem("token"),
-                },
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  alert("Course updated successfully");
-                  let updatedCourses = [];
-                  for (let i = 0; i < props.courses.length; i++) {
-                    if (courses[i].id === props.courseId) {
-                      updatedCourses.push({
-                        id: props.courseId,
+function UpdateCard() {
+    const [courseDetails, setCourse] = useRecoilState(courseState);
+    const [title, setTitle] = useState(courseDetails.course.title);
+    const [description, setDescription] = useState(courseDetails.course.description);
+    const [image, setImage] = useState(courseDetails.course.imageLink);
+    const [price, setPrice] = useState(courseDetails.course.price);
+
+    return <div style={{display: "flex", justifyContent: "center"}}>
+    <Card varint={"outlined"} style={{maxWidth: 600, marginTop: 200}}>
+        <div style={{padding: 20}}>
+            <Typography style={{marginBottom: 10}}>Update course details</Typography>
+            <TextField
+                value={title}
+                style={{marginBottom: 10}}
+                onChange={(e) => {
+                    setTitle(e.target.value)
+                }}
+                fullWidth={true}
+                label="Title"
+                variant="outlined"
+            />
+
+            <TextField
+                value={description}
+                style={{marginBottom: 10}}
+                onChange={(e) => {
+                    setDescription(e.target.value)
+                }}
+                fullWidth={true}
+                label="Description"
+                variant="outlined"
+            />
+
+            <TextField
+                value={image}
+                style={{marginBottom: 10}}
+                onChange={(e) => {
+                    setImage(e.target.value)
+                }}
+                fullWidth={true}
+                label="Image link"
+                variant="outlined"
+            />
+            <TextField
+                value={price}
+                style={{marginBottom: 10}}
+                onChange={(e) => {
+                    setPrice(e.target.value)
+                }}
+                fullWidth={true}
+                label="Price"
+                variant="outlined"
+            />
+
+            <Button
+                variant="contained"
+                onClick={async () => {
+                    axios.put(`${BASE_URL}/admin/courses/` + courseDetails.course._id, {
                         title: title,
                         description: description,
-                        price: "455",
-                        imgLink: imageLink,
-                        published: "true",
-                      });
-                    } else {
-                      updatedCourses.push(courses[i]);
-                    }
-                  }
-                  setCourses(updatedCourses);
-                })
-                .catch((error) => {
-                  console.error("Error updating course:", error);
-                });
-            }}
-          >
-            Update Course
-          </Button>
+                        imageLink: image,
+                        published: true,
+                        price
+                    }, {
+                        headers: {
+                            "Content-type": "application/json",
+                            "Authorization": "Bearer " + localStorage.getItem("token")
+                        }
+                    });
+                    let updatedCourse = {
+                        _id: courseDetails.course._id,
+                        title: title,
+                        description: description,
+                        imageLink: image,
+                        price
+                    };
+                    setCourse({course: updatedCourse, isLoading: false});
+                }}
+            > Update course</Button>
         </div>
-      </Card>
-    </div>
-  );
+    </Card>
+</div>
 }
 
 function CourseCard(props) {
-  const courses = useRecoilValue(coursesState);
+    const title = useRecoilValue(courseTitle);
+    const imageLink = useRecoilValue(courseImage);
+    const price = useRecoilValue(coursePrice)
 
-  let course = null;
-  for (let i = 0; i < courses.length; i++) {
-    if (courses[i]._id == props.courseId) {
-      console.log("hrlll");
-      course = courses[i];
-    }
-  }
-
-  if (!course) {
-    return <div>No course data available.</div>; // or any other appropriate message or UI
-  }
-  return (
-    <Card
-      style={{
-        border: "2px solid black",
-        width: 300,
+    return <div style={{display: "flex",  marginTop: 50, justifyContent: "center", width: "100%"}}>
+     <Card style={{
         margin: 10,
+        width: 350,
         minHeight: 200,
-      }}
-    >
-      <Typography textAlign={"center"} variant="h5">
-        {course.title}
-      </Typography>
-      <Typography textAlign={"center"} variant="subtitle1">
-        {course.description}
-      </Typography>
-      <img src={course.imgLink} alt="Course Cover" style={{ width: 300 }} />
+        borderRadius: 20,
+        marginRight: 50,
+        paddingBottom: 15,
+        zIndex: 2
+    }}>
+        <img src={imageLink} style={{width: 350}} ></img>
+        <div style={{marginLeft: 10}}>
+            <Typography variant="h5">{title}</Typography>
+            <Typography variant="subtitle2" style={{color: "gray"}}>
+                Price
+            </Typography>
+            <Typography variant="subtitle1">
+                <b>Rs {price} </b>
+            </Typography>
+        </div>
     </Card>
-  );
+    </div>
 }
 
 export default Course;
-
-const coursesState = atom({
-  key: "coursesState",
-  default: "",
-});

@@ -1,18 +1,19 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import axios from "axios";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import { BASE_URL } from "../config";
 
 
 const AddCourse = () => {
-
-  const [title,setTitle]=useState("");
-  const [description,setDescription]=useState("");
-  const [imageLink,setImageLink]=useState("");
-  const [price,setPrice]=useState("");
-  const [isPublished,setispublished]=useState("");
-
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageLink, setImageLink] = useState("");
+  const [price, setPrice] = useState("");
+  const [isPublished, setispublished] = useState("");
 
   const styles = {
     main: {
@@ -31,8 +32,9 @@ const AddCourse = () => {
     },
     image: {
       borderRadius: "20px 0 0 20px",
+      marginTop: "40px",
       width: "50%",
-      height: "500px",
+      height: "400px",
       background:
         'url("https://img.freepik.com/free-vector/flat-design-online-courses-illustration_52683-37617.jpg")',
       backgroundSize: "contain",
@@ -59,7 +61,7 @@ const AddCourse = () => {
             value={title}
             label="Title"
             variant="outlined"
-            style={{ marginBottom: "14px",width:"300px" }}
+            style={{ marginBottom: "14px", width: "300px" }}
           />
           <TextField
             onChange={(e) => {
@@ -68,7 +70,7 @@ const AddCourse = () => {
             value={description}
             label="Description"
             variant="outlined"
-            style={{ marginBottom: "14px",width:"300px" }}
+            style={{ marginBottom: "14px", width: "300px" }}
           />
           <TextField
             onChange={(e) => {
@@ -76,7 +78,7 @@ const AddCourse = () => {
             }}
             label="Cover Image"
             variant="outlined"
-            style={{ marginBottom: "14px",width:"300px" }}
+            style={{ marginBottom: "14px", width: "300px" }}
           />
           <TextField
             onChange={(e) => {
@@ -85,24 +87,25 @@ const AddCourse = () => {
             value={price}
             label="Price"
             variant="outlined"
-            style={{ marginBottom: "14px",width:"300px" }}
+            style={{ marginBottom: "14px", width: "300px" }}
           />
 
-          <TextField
-            onChange={(e) => {
-              setispublished(e.target.value);
-            }}
+          <Select
             value={isPublished}
+            onChange={(e) => setispublished(e.target.value)}
             label="Published"
             variant="outlined"
-            style={{ marginBottom: "14px",width:"300px" }}
-          />
+            style={{ marginBottom: "14px", width: "300px" }}
+          >
+            <MenuItem value="true">True</MenuItem>
+            <MenuItem value="false">False</MenuItem>
+          </Select>
 
           <Button
             style={{
               backgroundColor: "#a435f0",
               float: "right",
-              marginRight:"20px",
+              marginRight: "20px",
               "&:hover": {
                 backgroundColor: "#5624d0",
               },
@@ -111,20 +114,22 @@ const AddCourse = () => {
             fontWeight="bold"
             onClick={async () => {
               const response = await axios.post(
-                "http://localhost:3000/admin/courses",
+                `${BASE_URL}/admin/courses`,
                 {
-                  title:title,
-                  description:description,
-                  price:price,
-                  imageLink:imageLink,
-                  published:"true"
-                },{
-                  headers:{
+                  title: title,
+                  description: description,
+                  price: price,
+                  imageLink: imageLink,
+                  published: "true",
+                },
+                {
+                  headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer "+localStorage.getItem("token")
-                  }
+                    Authorization: "Bearer " + localStorage.getItem("token"),
+                  },
                 }
               );
+              alert("Added course!");
             }}
           >
             Add Course

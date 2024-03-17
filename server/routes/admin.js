@@ -72,7 +72,7 @@ router.get("/courses",authenticateJwt,async(req,res)=>{
 });
 
 router.get("/courses/:courseId",authenticateJwt,async(req,res)=>{
-    const courseId=req.headers.courseId;
+    const courseId=req.params.courseId;
     const course=await Course.findById(courseId);
     if(course){
         res.json({course})
