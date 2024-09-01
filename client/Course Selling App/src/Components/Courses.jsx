@@ -1,76 +1,108 @@
-import { Button,Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "../config.js";
 import axios from "axios";
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
+import { 
+  Button, 
+  Typography, 
+  Card, 
+  CardContent, 
+  CardMedia, 
+  Grid, 
+  Container, 
+  CircularProgress 
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { BASE_URL } from "../config.js";
 
-function Courses() {
-  const [courses, setCourses] = useState([]);
+const StyledCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'transform 0.15s ease-in-out',
+  '&:hover': { transform: 'scale3d(1.05, 1.05, 1)' },
+}));
 
-  const init = async () => {
-    const response = await axios.get(`${BASE_URL}/admin/courses/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    setCourses(response.data.courses);
-  };
+const StyledCardMedia = styled(CardMedia)({
+  paddingTop: '56.25%', // 16:9 aspect ratio
+});
 
-  useEffect(() => {
-    init();
-  }, []);
+const StyledCardContent = styled(CardContent)({
+  flexGrow: 1,
+});
 
-  return (
-    <div
-      style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
-    >
-      {courses.map((course) => {
-        return <Course course={course} />;
-      })}
-    </div>
-  );
-}
-
-export function Course({ course }) {
+function Course({ course }) {
   const navigate = useNavigate();
+
   return (
-    <Card sx={{ width:"400px",maxWidth: 400, margin: "1.5rem" }}>
-      {" "}
-      <CardMedia
-        component="img"
-        alt="green iguana"
-        height="200"
+    <StyledCard>
+      <StyledCardMedia
         image={course.imageLink}
-      />{" "}
-      <CardContent>
-        {" "}
-        <Typography gutterBottom variant="h5" component="div">
-          {" "}
-          {course.title}{" "}
-        </Typography>{" "}
+        title={course.title}
+      />
+      <StyledCardContent>
+        <Typography gutterBottom variant="h5" component="h2">
+          {course.title}
+        </Typography>
         <Typography variant="body2" color="text.secondary">
-          {" "}
-          {course.description}{" "}
-        </Typography>{" "}
-      </CardContent>{" "}
-      <div style={{ float:"right", margin: "20px" }}>
-        {" "}
+          {course.description}
+        </Typography>
+      </StyledCardContent>
+      <CardContent>
         <Button
           variant="contained"
           size="small"
-          style={{backgroundColor:"#5624d0",fontWeight:"bold"}}
-          onClick={() => {
-            navigate("/course/" + course._id);
-          }}
+          fullWidth
+          style={{backgroundColor: "#5624d0"}}
+          onClick={() => navigate(`/course/${course._id}`)}
         >
           Update
-        </Button>{" "}
-      </div>{" "}
-    </Card>
+        </Button>
+      </CardContent>
+    </StyledCard>
   );
 }
 
-export default Courses;
+export default function Courses() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/admin/courses/`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setCourses(response.data.courses);
+      } catch (error) {
+        console.error("Failed to fetch courses:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    
+      <Grid container spacing={4}>
+        {courses.map((course) => (
+          <Grid item key={course._id} xs={12} sm={6} md={4}>
+            <Course course={course} />
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
+  );
+}
